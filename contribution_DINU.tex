@@ -5,7 +5,7 @@
 
 %%%%%%%%%%%%%%%%%%%%%%
 \section*{Regularized likelihoods}
-Author(s): Ioan-Mihail Dinu \\ \textit{Laboratoire de Phisique de Clermont, Clermont-Ferrand, France}\\
+Author(s): Ioan-Mihail Dinu \\ \textit{Laboratoire de Physique de Clermont, Université Clermont Auvergne, France}\\
 
 %\noindent \textit{Please do not write an introduction to anomaly detection - we will have one introduction at the beginning.  Furthermore, please give your method a concise name - it is fine to say \textbf{Concise Name: Longer Name that is More Specific.}  The length limit is five pages of text (not included references), with fewer pages preferred, and at most one additional page of figures if needed.}
 \subsection{Method}
@@ -59,9 +59,9 @@ The training of this model is split in two phases completed sequentially for eve
     \label{eq:eq4}
 \end{equation}
 
-Regarding the preprocessing steps, the LHC Olympics datasets have been clustered and the the following features have been selected for each of the two leading jets: $p_T$, $\eta$, $E$, $m$, $\tau_3/\tau_2$, $\tau_2/\tau_1$, where $\tau_n$ is the n-subjettiness. For these 12 features, the best performing manifold size was 8.
+Regarding the preprocessing steps, the LHC Olympics datasets have been clustered and the following features have been selected for each of the two leading jets: $p_T$, $\eta$, $E$, $m$, $\tau_3/\tau_2$, $\tau_2/\tau_1$, where $\tau_n$ is the n-subjettiness. For these 12 features, the best performing manifold size was 8.
 
-This model offers the possibility to calculate both the density on the manifold and the reconstruction error from the projection on the manifold. We tried to use both of those metrics in order construct a robust anomaly score as in Eq.~\ref{eq:eq5}. This metric performs the anomaly detection task better on the R\&D dataset that its components and better than a basic normalizing flow model trained on the same data, judging by the ROC curves in Fig.~\ref{fig:fig2}.
+This model offers the possibility to calculate both the density on the manifold and the reconstruction error from the projection on the manifold. We tried to use both of those metrics in order construct a robust anomaly score as in Eq.~\ref{eq:eq5}. This metric performs the anomaly detection task better on the R\&D dataset than its components and better than a basic normalizing flow model trained on the same data, judging by the ROC curves in Fig.~\ref{fig:fig2}.
 
 \begin{equation}
     \mathcal{R}_{exp}(x) = \frac{\lvert \lvert x-g(g^{-1}(x)) \lvert \lvert ^2}{1+p_{u}(g^{-1}(x))}
@@ -129,7 +129,7 @@ One of the main lessons learned during this challenge is that: in absence of a g
 
 For the winter LHC Olympics, we approached the problem with a simple autoencoder that was trained on the full background black box. Applying that model on Black Box 1 (BB1) introduced a lot of bias that ended up acting like a fake signal. Special precautions should always be taken in order to avoid this scenario.
 
-With the experience gained from studying BB1 we were a lot more careful to avoid creating fake signal. The subsequent problem proved to be the lack of a good background model. Since we could not relay on the full background black box, the alternative was to train on data, but this comes with its own issues. 
+With the experience gained from studying BB1 we were a lot more careful to avoid creating fake signal. The subsequent problem proved to be the lack of a good background model. Since we could not rely on the full background black box, the alternative was to train on data, but this comes with its own issues. 
 
 All of the attempts so far came short of providing a good background modeling and therefore the current anomaly detection performance leaves a lot to be desired. Those trials taught us that a good machine learning anomaly detection algorithm is not just about the neural network itself, but many other analysis details should be treated with the same amount of attention.
 
