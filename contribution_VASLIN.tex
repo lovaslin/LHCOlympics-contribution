@@ -5,43 +5,43 @@
 
 %%%%%%%%%%%%%%%%%%%%%%
 \section*{GAN-AE and BumpHunter}
-Author(s): Louis VASLIN \\ \textit{Laboratoire de Physique de Clermont, France}\\
+Author(s): Louis VASLIN, Julien DONINI \\ \textit{Laboratoire de Physique de Clermont, Université Clermont Auvergne, France}\\
 
 
 \subsection{Method}
 \label{sec:method}
 
 \noindent The methods presented in this paper combine two independent anomaly detection algorthm.
-The objective is to have a fulle analysis workflow that can give a global p-value and evaluate the number of signal events in any black box dataset.
+The objective is to have a full analysis workflow that can give a global p-value and evaluate the number of signal events in any black-box dataset.
 
 \subsubsection{GAN-AE}
 \label{sec:GAN-AE}
 
-\noindent The GAN-AE method is an attempt at assiocating and Auto-Encoder architechture to a discriminant neural network in a GAN-like fashion.
-The reason for this particular setting is to use information that don't come only from the "reconstruction error" usualy used to train AEs.
+\noindent The GAN-AE method is an attempt at associating an Auto-Encoder architecture to a discriminant neural network in a GAN-like fashion.
+The reason for this particular setting is to use information that does not come only from the "reconstruction error" usualy used to train AEs.
 This could be seen as a alternative way to constrain the training of an AE.
 As discriminant network, a simple feed-forward Multi-Layer Perceptron (MLP) is used. \\
 
 \noindent This method been inspired by the GAN algorithm, the two participants (AE and MLP) are trained alternatively with opposite objectives :
 
 \begin{itemize}
-	\item The MLP is trained for a few epochs using the binary crossentropy (BC) loss function on a labeled mixture of original and reconstruted events, the objective being to expose the weeknesses of the AE.
+	\item The MLP is trained for a few epochs using the binary crossentropy (BC) loss function on a labeled mixture of original and reconstruted events, the objective being to expose the weaknesses of the AE.
 	
-	\item The AE is trained for a few epochs using a loss function combining the recnstruction error (here, the Mean Euclidean Distance between the input and output, or MED for short) and the BC loss of the MLP.
-	In order to decorelate as much as possible the reconstruction error and the invariant mass, the distance correlation (DisCo) term is used (ref).
+	\item The AE is trained for a few epochs using a loss function combining the reconstruction error (here, the Mean Euclidean Distance between the input and output, or MED for short) and the BC loss of the MLP.
+	In order to decorrelate as much as possible the reconstruction error and the invariant mass, the distance correlation (DisCo) term is used~\cite{DiscoFever}.
 	The loss is then given by :
 	$$loss_{AE} = BC+\varepsilon\times MED+\alpha\times DisCo$$
-	\noindent With $\varepsilon$ and $\alpha$ two hyperparameters used to balance the wights of each terms. In this case, the BC term is evaluated by giving reconstructed events to the MLP, but this time with the "wrong label", the objective being to misslead the MLP. 
+	\noindent With $\varepsilon$ and $\alpha$ two hyperparameters used to balance the weights of each terms. In this case, the BC term is evaluated by giving reconstructed events to the MLP, but this time with the "wrong label", the objective being to mislead the MLP. 
 	
-	\item Then the AE is evaluated on a validation set using a Figure of Merit that also combines the reconstruction error and some information from the MLP.
+	\item Then the AE is evaluated on a validation set using a Figure of Merit (FoM) that also combines the reconstruction error and some information from the MLP.
 	The FoM used is given by :
 	$$FoM = MED+(1-Mean~MLP~output)$$
-	\noindent This second term is preffered over the binary crossentropy because it seems to be more stable, which makes it more suitable to set a early stopping condition.
+	\noindent This second term is preferred over the binary crossentropy because it seems to be more stable, which makes it more suitable to set a early stopping condition.
 	As for the reconstruction error, $1-Mean~MLP~output$ must be minimized.
 	In fact, the closer to zero is this term, the better the AE is at misleading the MLP.
 \end{itemize}
 
-\noindent These three steps are repeated in a loop until the FoM fails to improve for five cycles. Once the AE has been trained, the MLP can be discarded seens it is not needed anymore. Then, the AE can be used as usual using only the reconstruction error (Euclidean distance) as discriminantive feature.\\
+\noindent These three steps are repeated in a loop until the FoM fails to improve for five cycles. Once the AE has been trained, the MLP can be discarded since it is not needed anymore. Then, the AE can be used by taking the reconstruction error (Euclidean distance) as discriminative feature.\\
 
 \noindent The GAN-AE hyperparameter used for the LHC Olympics are shown in Tab.~\ref{tab:param_GAE}
 \begin{table}[h!]
@@ -70,15 +70,15 @@ As discriminant network, a simple feed-forward Multi-Layer Perceptron (MLP) is u
 
 \noindent The BumpHunter algorithm is a hypertest that compares a data distribution with a reference and evaluates the p-value and significance of any deviation.
 To do so, BumpHunter will scan the two distributions with a sliding window of variable width.
-For each position and width of the scan window, the local p-value is evaluted. The window coresponding to the most significant deviations is then defined as the one with the smallest local p-value.\\
+For each position and width of the scan window, the local p-value is calculated. The window corresponding to the most significant deviations is then defined as the one with the smallest local p-value.\\
 
-\noindent In order to deal with the look elsewhere effect and evaluate a global p-value, BupHunter generates pseudo-experiment by sampling from the reference histogram.
-The scan is the repeated for each pesudo-data histogram by comparing them with the original reference.
+\noindent In order to deal with the look elsewhere effect and evaluate a global p-value, BumpHunter generates pseudo-experiment by sampling from the reference histogram.
+The scan is then repeated for each pesudo-data histogram by comparing with the original reference.
 This gives a local p-value distribution that can be compared with the local p-value obtained for the real data.
-Thus, a global p-avlue and significance is obatianed.
-In order to evaluate the number of signal events, the difference of event count in the bump window for the data and the reference can be used.
+Thus, a global p-avlue and significance is obtained.
+%In order to evaluate the number of signal events, the difference of event count in the bump window for the data and the reference can be used.
 
-\noindent THe BumpHunter hyperparameters used for the LHC Olympics are shown in Tab.~\ref{tab:param_BH}
+\noindent The BumpHunter hyperparameters used for the LHC Olympics are shown in Tab.~\ref{tab:param_BH}
 \begin{table}[h!]
 	\centering
 	\begin{tabular}{|c|c|}
@@ -100,16 +100,16 @@ In order to evaluate the number of signal events, the difference of event count 
 
 \subsubsection{Full analysis workflow}
 
-\noindent The objective of this work is to use the Auto-Encoder trained withe the GAN-AE algorithm to reduce the background and then use the BumpHunter algorithm to evaluate the p-value of a potential signal.
+\noindent The objective of this work is to use the Auto-Encoder trained withe the GAN-AE algorithm to reduce the background and then use the BumpHunter algorithm to evaluate the (global) p-value of a potential signal.
 However, the use of this second algorithm requires the use of a "reference background" to be expected in the data.
-Unfortunately, such reference is not always available, as it is the case for the LHC Olympics black box dataset.
-Thus, in order to use BumpHunter, ones must first extract a background model for the data.\\
+Unfortunately, such reference is not always available, as it is the case for the LHC Olympics black-box dataset.
+Thus, in order to use BumpHunter, one must first extract a background model for the data.\\
 Another point that has to be taken into acount is the fact that, despite the use of the DisCo term, the dijet mass spectum is not totally independent from the reconstuction error.
 Thus, simply rescaling the full dataset precut to fit the mass spectrum postcut will not work. \\
 
 \noindent One way to do this is to use a small subset of the data to compute a shaping function.
 The objective of this function is to capture how the mass spectum behaves when a cut on the reconstruction error is applied.
-This function is computed bin per bin on the dijet mass histogram by doing the ratio of the bin yeilds postcut and precut.\\
+This function is computed bin per bin on the dijet mass histogram by doing the ratio of the bin yields postcut and precut.\\
 Of course, the presence of signal in the subset used for this calculation might impact this shaping function.
 In order to mtigate this efect, the shaping function can be fitted using the tools available in the scikit-learn toolkit.
 This will minimize the effect of the signal on the shaping function.\\
@@ -119,8 +119,8 @@ Once the shaping function is defined, it can be used to reshape the mass spectum
 \begin{itemize}
 	\item Data preprocessing (anti-Kt clusturing, precut on dijet mass)
 	\item Training of GAN-AE on the RnD background
-	\item Application of the trained AE on the black box dataset
-	\item Use 100k events from the black box to compute a shaping function
+	\item Application of the trained AE on the black-box dataset
+	\item Use 100k events for the black-box to compute a shaping function
 	\item Use the shaping function to build a reference to use the BumpHunter algorithm
 \end{itemize}
 
@@ -129,7 +129,7 @@ Once the shaping function is defined, it can be used to reshape the mass spectum
 \subsection{Results on LHC Olympics}
 \label{sec:results}
 
-\noindent The results shown were obtained with a AE trained with the GAN-AE algorithm on 100k events from the RnD bakground.
+\noindent The results shown were obtained with an AE trained with the GAN-AE algorithm on 100k events from the RnD bakground.
 Note that before the training and application, cuts were applied on the dijet mass at 2700 GeV and 7000 GeV.
 
 
@@ -138,7 +138,11 @@ Note that before the training and application, cuts were applied on the dijet ma
 
 \noindent Here we discuss the result obtained on the R\&D dataset.
 The trained AE have been tested on 100k background events (not used during the training), as well as on the two signals provided.
-On Fig.~\ref{fig:GAE_RnD} is shown the Euclidean distance distributions (left) and the corresponding ROC curves (right).\\
+Fig.~\ref{fig:GAE_RnD} shows the Euclidean distance distributions (left) and the corresponding ROC curves (right).\\
+
+\noindent This result illustrates the potential of the GAN-AE algorithm to obtain a good discrimination between the background and signals, event though only the background was used during the training.
+However, if the obtained AUC is good, it also appears that the Euclidean distance is still very correlated with the dijet mass.
+This might have a negative impact on the bump hunting algorithm performance.
 
 \begin{figure}[h!]
 \centering
@@ -148,30 +152,24 @@ On Fig.~\ref{fig:GAE_RnD} is shown the Euclidean distance distributions (left) a
 \label{fig:GAE_RnD}
 \end{figure}
 
-\noindent This result shows the potential of the GAN-AE algorithm to obtain a good discrimination between the background and signals, event though only the background was used during the training.
-However, if the obtained AUC is good, it also appears that the Euclidean distance is still very correlated with the dijet mass.
-This might have a negative impact on the bump hunting algorithm performance.
-
-\subsubsection{Black Boxes dataset}
+\subsubsection{Black-Boxes dataset}
 \label{sec:BB}
 
-\noindent Here we discuss the results obatained for the black box dataset provided for the LHC Olympics challenge.\\
+\noindent Here we discuss the results obtained for the black box dataset provided for the LHC Olympics challenge.\\
 
-\noindent On Fig.~\ref{fig:GAE_BB_dist} is shown the Euclidean distance distribution obained for each black box.
-Compare to what was obtained with the R\&D background, the distributions seem larger and globally shifted to the right.
-This is most likely due to the diference between the R\&D background and the background generated in the black boxes.
-This fact show that the method used in quite sensible to the small defferencies in the background.
+\noindent Figure ~\ref{fig:GAE_BB_dist} shows the Euclidean distance distribution obained for each black box.
+Compared to what was obtained with the R\&D background, the distributions seem larger and globally shifted to the right.
+This is most likely due to the difference between the R\&D background and the background generated in the black boxes.
+This fact shows that the method used is quite sensible to the modelling of the background.
 
 \begin{figure}[h!]
 \centering
 \includegraphics[width=0.5\textwidth]{img/distance_all.pdf}
-\caption{Euclidean distance distributions and ROC curves obtained for the R\&D dataset.}
+\caption{Euclidean distance distributions and ROC curves obtained for the black boxes datasets.}
 \label{fig:GAE_BB_dist}
 \end{figure}
 
-\noindent On Fig.~\ref{fig:GAE_BB_shape} is shown the shaping function obtained using 100k events from each black box. The fit was made using scikit-learn.
-Unfortunately, the fit is very suboptimal. None of the tested functions seems to fit well.
-This might lead to the aprearance of fake bump or fake deficit during the BumpHunter scan.
+\noindent Figure~\ref{fig:GAE_BB_shape} shows the shaping function obtained using 100k events from each black box dataset. A preliminary fit was made to each of the distribution. Since the fit is suboptimal this might lead to the aprearance of fake bump or fake deficit during the BumpHunter scan.
 
 \begin{figure}[h!]
 \centering
@@ -182,11 +180,10 @@ This might lead to the aprearance of fake bump or fake deficit during the BumpHu
 \label{fig:GAE_BB_shape}
 \end{figure}
 
-\noindent On Fig.~\ref{fig:GAE_BB_BH} is shown the results obtained with BumpHunter for all black boxes.
-As foreseen with the poor fit of the shaping functions, the reference backgrounds built to serve as reference don't fit well the data after cut on the Euclidean distance.
-In this conditions we can't really evaluate a meanigfull p-value for a potential signal.
-If the results were good on the RnD dataset, it seems that the method is very dificult to apply when there are no good references for the background.
-
+\noindent Finally figure.~\ref{fig:GAE_BB_BH} shows the results obtained with BumpHunter for all black boxes.
+As foreseen with the poor fit of the shaping functions, the constructed reference backgrounds do not fit well the data after cut on the Euclidean distance.
+In this condition and at the current stage of this work we can't really evaluate a meanigfull p-value for a potential signal.
+If the results were good on the RnD dataset, it seems that the method is more challenging to apply without a good modelling of the background shape.
 
 \begin{figure}[h!]
 \centering
@@ -200,23 +197,21 @@ If the results were good on the RnD dataset, it seems that the method is very di
 \subsection{Lessons Learned}
 \label{sec:lessons}
 
-\noindent The LHC Olympic challenge have been a good opprtunity to test the potential of the GAN-AE algorithm that I have been developping.
+\noindent The LHC Olympic challenge has been a good opprtunity to test the potential of the GAN-AE algorithm that we have been developping.
 This shows the potential of this method with the good results on the RnD dataset, but also its limits.  
 
-\noindent The results obtained revealed the sensibility of GAN-AE to the small defferencies in the background and also that the distance distribution is stilll very correlated to the dijet mass despite the use of the DisCo term. 
+\noindent The results obtained revealed the sensibility of GAN-AE to the modelling of the background and to the correlation of the distance distribution with the dijet mass, despite the use of DisCo term.
 In addition, the fact that no background simulation that fits the black boxes data were available made the use of the BumpHunter algorithm difficult to apply.  
-Unfortunately, I started working on the LHC Olympics data after the content of black box 1 was revealed.
-
 
 \subsection{Code Availability}
 \label{code:code}
 
 \noindent All the scripts used to train and apply the GAN-AE algorithm are given at this link :\\
-\href{"https://github.com/lovaslin/GAN-AE_LHCOlympics"}{"https://github.com/lovaslin/GAN-AE_LHCOlympics"}\\ \\
+\href{"https://github.com/lovaslin/GAN-AE\_LHCOlympics"}{"https://github.com/lovaslin/GAN-AE\_LHCOlympics"}\\ \\
 
 \noindent The implementation of the BumpHunter algorithm used in this work can be found at this link :\\
 \href{https://github.com/lovaslin/pyBumpHunter}{https://github.com/lovaslin/pyBumpHunter}\\
-\noindent In near future, it is planed that this implementation of BumpHunter becames a official package that might be included in the scikit-HEP toolkit.
+\noindent In near future, it is planed that this implementation of BumpHunter becames a official package to be included in the scikit-HEP toolkit.
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 \acknowledgments
@@ -224,6 +219,8 @@ Unfortunately, I started working on the LHC Olympics data after the content of b
 This work was supported by the U.S.~Department of Energy, Office of Science under contract DE-AC02-05CH11231. 
 
 \vspace{10mm}
+
+\noindent \textit{For the references, please use names from Ref.~\cite{hepmllivingreview}.  If your paper is not there or is not updated, please submit a MR!}
 
 \bibliographystyle{jhep}
 \bibliography{HEPML}
